@@ -1,0 +1,74 @@
+div#keyboard {
+    position: absolute;
+    height: 400px;
+    width: 880px;
+    /* margin: auto; */
+    margin-top: 100px;
+    margin-left: 100px;
+}
+
+div.white-note {
+    width: 100px;
+    height: 100%;
+    display: inline-block;
+    border: 3px solid black;
+}
+
+div.black-note {
+    position: absolute;
+    /* top: -400px */
+    width: 70px;
+    height: 250px;
+    display: inline-block;
+    background-color: black;
+    box-shadow: 8px 15px 25px black;
+}
+
+div#C\#3 {
+    left: 70px;
+}
+
+div#D\#3 {
+    left: 180px;
+}
+
+div#F\#3 {
+    left: 400px;
+}
+
+div#G\#3 {
+    left: 510px;
+}
+
+div#A\#3 {
+    left: 620px;
+}
+
+div.c {
+    background-color: red;
+}
+
+div.d {
+    background-color:orange;
+}
+
+div.e {
+    background-color:yellow;
+}
+
+div.f {
+    background-color:green;
+}
+
+div.g {
+    background-color: teal;
+}
+
+div.a {
+    background-color:blue;
+}
+
+div.b {
+    background-color:purple;
+}
+
