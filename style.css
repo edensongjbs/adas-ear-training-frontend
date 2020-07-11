@@ -24,6 +24,10 @@ div.black-note {
     box-shadow: 8px 15px 25px black;
 }
 
+div.playing {
+    opacity: 0.7;
+}
+
 div#C\#3 {
     left: 70px;
 }
