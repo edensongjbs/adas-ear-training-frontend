@@ -8,6 +8,7 @@
 //play a note every quarter-note
 // })
 
+
 const keyBindings = {
     "a": "C3",
     "s": "D3",
@@ -25,7 +26,14 @@ const keyBindings = {
 }
 
 const allNotes = document.querySelectorAll('.white-note, .black-note')
-const synth = new Tone.Synth().toMaster();
+// const synth = new Tone.Synth().toMaster();
+
+var synth = new Tone.PolySynth(4, Tone.Synth, {
+    oscillator : {
+          type : "square"
+      }
+  }).toMaster();
+// var synth = new Tone.PluckSynth().toMaster()
 
 document.addEventListener('keydown', (e) => {
     // debugger
@@ -57,7 +65,7 @@ playNote = (note) => {
 // }
 
 releaseNote = (note) => {
-    synth.triggerRelease();
+    synth.triggerRelease(note);
     const noteDiv = document.querySelector(`#${note.replace("#", '\\#')}`)
     noteDiv.classList.remove('playing')
 }
