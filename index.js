@@ -49,7 +49,13 @@ for (const note of allNotes) {
     note.addEventListener('mousedown', () => {
         playNote(event.target.id)
     })
+    note.addEventListener('touchstart', () => {
+        playNote(event.target.id)
+    })
     note.addEventListener('mouseup', () => {
+        releaseNote(event.target.id)
+    })
+    note.addEventListener('touchend', () => {
         releaseNote(event.target.id)
     })
 } 
