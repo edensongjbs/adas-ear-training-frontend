@@ -7,20 +7,29 @@
     <title>Playing with Sound in JS</title>
   </head>
   <body>
-    <div id="keyboard">
-      <div class="white-note c" id="C3"></div>
-      <div class="white-note d" id="D3"></div>
-      <div class="white-note e" id="E3"></div>
-      <div class="white-note f" id="F3"></div>
-      <div class="white-note g" id="G3"></div>
-      <div class="white-note a" id="A3"></div>
-      <div class="white-note b" id="B3"></div>
-      <div class="white-note c" id="C4"></div>
-      <div class="black-note" id="C#3"></div>
-      <div class="black-note" id="D#3"></div>
-      <div class="black-note" id="F#3"></div>
-      <div class="black-note" id="G#3"></div>
-      <div class="black-note" id="A#3"></div>
+    <div class="wrapper">
+      <div id="keyboard">
+        <div class="all-white-notes">
+          <div class="white-note c" id="C3"></div>
+          <div class="white-note d" id="D3"></div>
+          <div class="white-note e" id="E3"></div>
+          <div class="white-note f" id="F3"></div>
+          <div class="white-note g" id="G3"></div>
+          <div class="white-note a" id="A3"></div>
+          <div class="white-note b" id="B3"></div>
+          <div class="white-note c" id="C4"></div>
+        </div>
+        <!-- <div class="all-black-notes"> -->
+        <div class="black-note" id="C#3"></div>
+        <div class="black-note" id="D#3"></div>
+        <div class="black-note" id="F#3"></div>
+        <div class="black-note" id="G#3"></div>
+        <div class="black-note" id="A#3"></div>
+      </div>
+      <!-- </div> -->
+      <div class="character-area"><img src="https://lh3.googleusercontent.com/proxy/wNs7tE17ZcC14SloqwDL40LZE0vlvWU9XOJ41BW0T2cWrfjgXwwPBYQxsNeLTcwvvuxAAAoR4pNVArF-_CR9wZjkuESJz_k"></div>
+      <div class="controls"></div>
+      <div class="controls"></div>
     </div>
     <script src="Tone.js" charset="utf-8"></script>
     <script src="index.js" charset="utf-8"></script>

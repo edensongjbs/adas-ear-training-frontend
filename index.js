@@ -75,3 +75,16 @@ releaseNote = (note) => {
     const noteDiv = document.querySelector(`#${note.replace("#", '\\#')}`)
     noteDiv.classList.remove('playing')
 }
+
+const wrapper = document.querySelector('div.wrapper')
+
+document.addEventListener("DOMContentLoaded", resizeKeybed)
+
+function resizeKeybed() {
+    if (window.screen.availHeight > 375) {
+        const width = parseInt(getComputedStyle(wrapper).width.split('px')[0])
+        wrapper.style.height = `${width/2}px`
+    }
+}
+
+window.addEventListener("resize", resizeKeybed)
