@@ -3,10 +3,46 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" href="style.css">
-
+    <script src="https://kit.fontawesome.com/0da1b41e13.js" crossorigin="anonymous"></script>
     <title>Playing with Sound in JS</title>
   </head>
   <body>
+    <div class="window-cover hide">
+      <!-- <div class="modal-a">
+        <div class="game-buttons">
+          <button>Game 1<br>Chords</button>
+          <button>Game 2<br>Chords</button>
+          <button>Game 3<br>Chords</button>
+          <button>Game 4<br>Chords</button>
+          <button>Game 5<br>Chords</button>
+        </div>
+        <div class="login"></div>
+        <div class="options"></div>
+      </div> -->
+      <div class="modal-b">
+        <div class="form-div">
+          <form class="login-form">
+            <label for="email">E-Mail Address</label>
+            <input id ="email" name="email" type="text" placeholder="example@example.com">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="password">
+            <a href="#">New Users, Click here to sign up!</a>
+            <input type="submit">
+          </form>
+          <form class="signup-form">
+            <label for="email">E-Mail Address</label>
+            <input id ="email" name="email" type="text" placeholder="example@example.com">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="password">
+            <label for="password-confirmation">Confirm Password</label>
+            <input id="password-confirmation" name="password-confirmation" type="password" placeholder="password">
+            <a href="#">Current Users, Click here to log in!</a>
+            <input type="submit">
+          </form>
+          
+        </div>
+      </div>
+    </div>
     <div class="wrapper">
       <div id="keyboard">
         <div class="all-white-notes">
@@ -19,17 +55,31 @@
           <div class="white-note b" id="B3"></div>
           <div class="white-note c" id="C4"></div>
         </div>
-        <!-- <div class="all-black-notes"> -->
         <div class="black-note" id="C#3"></div>
         <div class="black-note" id="D#3"></div>
         <div class="black-note" id="F#3"></div>
         <div class="black-note" id="G#3"></div>
         <div class="black-note" id="A#3"></div>
       </div>
-      <!-- </div> -->
-      <div class="character-area"><img src="https://lh3.googleusercontent.com/proxy/wNs7tE17ZcC14SloqwDL40LZE0vlvWU9XOJ41BW0T2cWrfjgXwwPBYQxsNeLTcwvvuxAAAoR4pNVArF-_CR9wZjkuESJz_k"></div>
+      <div class="character-area"><img src="./assets/dancing-banana.gif"></div>
+      <div class="chords">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <button>I</button>
+        <button>V</button>
+        <button>IV</button>
+        <button>ii</button>
+        <button>vi</button>
+        <button>iii</button>
+      </div>
       <div class="controls"></div>
-      <div class="controls"></div>
+    </div>
+    <div id=menu>
+      <i class="fas fa-chevron-circle-down"></i> 
     </div>
     <script src="Tone.js" charset="utf-8"></script>
     <script src="index.js" charset="utf-8"></script>

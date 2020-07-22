@@ -1,3 +1,5 @@
+
+
 .wrapper {
     display: grid;
     grid-template-columns: 3fr 1fr;
@@ -5,7 +7,82 @@
     grid-auto-rows: minmax(100px, auto);
     min-height: 367px;
     max-height: auto;
+    padding: 0px;
     /* height: 900px; */
+}
+
+.modal-a {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-gap: 1em;
+    /* grid-auto-rows: minmax(100px, auto); */
+    min-height: 200px;
+    max-height: auto;
+    /* height: 900px; */
+    font-size: xx-large;
+}
+
+.hide {
+    display: none;
+}
+
+.game-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 1em;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-buttons button {
+    display: grid;
+    font-size: xx-large;
+    border-radius: 25%;
+    border: 3px #000;
+    line-height: 150%;
+}
+
+.modal-b {
+    justify-content: center;
+    align-items: center;
+}
+
+.form-div {
+    display: grid;
+    min-height: 300px;
+    height: 50%;
+    width: 50%;
+    display: grid;
+    background-color: #fff;
+    border-radius: 25%;
+    padding:5%;
+}
+
+.window-cover{
+    z-index: 2;
+    background-color: #000;
+    /* height: 100vh; */
+    /* width: 100%; */
+    /* margin-top: 0px; */
+    /* padding-top: 0px; */
+    /* margin: 0px; */
+    /* padding: 0px; */
+    position:absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+    height:100%;
+    width:100%;
+    opacity: 85%;
+    transition: opacity 2.5s;
+}
+
+#menu {
+    position:absolute;
+    top:20px;
+    right:20px;
+    z-index: 4;
 }
 
 .wrapper > div{
@@ -23,7 +100,7 @@ div#keyboard {
     min-height: 290px;
     max-height: auto;
     min-width: 500px;
-    max-width: auto; 
+    max-width: auto;
     /* width: 600px; */
     /* padding-top: 50%; */
     /* grid-template-columns: 1fr; */
@@ -42,6 +119,29 @@ div.controls {
     /* width: span 4; */
     min-height: 60px;
     z-index: -1;
+}
+
+div.chords {
+    display: grid;
+    /* width: span 4; */
+    min-height: 60px;
+    row-gap: 0em;
+    column-gap: 1em;
+    padding-bottom: 0%; 
+    z-index: -1;
+    grid-template-columns: repeat(6, 1fr);
+    justify-content: center;
+    align-items: stretch;
+}
+
+div.chords button {
+    border-radius: 25%;
+    border: 3px solid black;
+    /* max-height: 100%; */
+    line-height: 250%;
+    align-self: end;
+    height: 70%;
+    /* z-index: 2; */
 }
 
 div.white-note {
