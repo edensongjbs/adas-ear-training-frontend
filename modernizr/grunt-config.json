@@ -1,0 +1,12 @@
+{
+  "crawl": false,
+  "customTests": [],
+  "dest": "/PATH/TO/modernizr-output.js",
+  "tests": [
+    "touchevents"
+  ],
+  "options": [
+    "setClasses"
+  ],
+  "uglify": true
+}

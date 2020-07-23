@@ -47,18 +47,23 @@ document.addEventListener('keyup', (e) => {
 })
 
 for (const note of allNotes) {
-    note.addEventListener('mousedown', () => {
-        playNote(event.target.id)
-    })
-    note.addEventListener('touchstart', () => {
-        playNote(event.target.id)
-    })
-    note.addEventListener('mouseup', () => {
-        releaseNote(event.target.id)
-    })
-    note.addEventListener('touchend', () => {
-        releaseNote(event.target.id)
-    })
+    if (Modernizr.touchevents) {
+        note.addEventListener('touchstart', () => {
+            playNote(event.target.id)
+        })
+        note.addEventListener('touchend', () => {
+            releaseNote(event.target.id)
+        })
+    }
+    else {
+        note.addEventListener('mousedown', () => {
+            playNote(event.target.id)
+        })
+        
+        note.addEventListener('mouseup', () => {
+            releaseNote(event.target.id)
+        })
+    }  
 }
 
 for (const chord of allChords) {
@@ -273,3 +278,6 @@ function triggerSynth(time){
 
 playButton = document.querySelector('.play')
 playButton.addEventListener("click", playGame)
+
+// if (Modernizr.touchevents) {alert("you're on a phone")}
+// else {alert("you're on a computer")}
