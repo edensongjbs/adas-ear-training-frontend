@@ -8,6 +8,7 @@
     min-height: 367px;
     max-height: auto;
     padding: 0px;
+    z-index: -2;
     /* height: 900px; */
 }
 
@@ -101,6 +102,7 @@ div#keyboard {
     max-height: auto;
     min-width: 500px;
     max-width: auto;
+    z-index: 1;
     /* width: 600px; */
     /* padding-top: 50%; */
     /* grid-template-columns: 1fr; */
@@ -118,7 +120,7 @@ div.controls {
     display: grid;
     /* width: span 4; */
     min-height: 60px;
-    z-index: -1;
+    /* z-index: -1; */
 }
 
 div.chords {
@@ -128,7 +130,7 @@ div.chords {
     row-gap: 0em;
     column-gap: 1em;
     padding-bottom: 0%; 
-    z-index: -1;
+    /* z-index: -1; */
     grid-template-columns: repeat(6, 1fr);
     justify-content: center;
     align-items: stretch;
@@ -141,6 +143,7 @@ div.chords button {
     line-height: 250%;
     align-self: end;
     height: 70%;
+    /* z-index: 3; */
     /* z-index: 2; */
 }
 
