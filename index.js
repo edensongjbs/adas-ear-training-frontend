@@ -331,3 +331,37 @@ playButton.addEventListener("click", playGame)
 
 // if (Modernizr.touchevents) {alert("you're on a phone")}
 // else {alert("you're on a computer")}
+
+// User signup
+
+const signupForm = document.querySelector('.signup-form')
+
+function createUser() {
+    const userObj = {
+        email: signupForm[0].value,
+        password: signupForm[1].value,
+        password_confirmation: signupForm[2].value
+    }
+    const configObj = {
+        headers: {
+            "Content-Type": "application/json"
+        },
+        method: "POST",
+        body: JSON.stringify(userObj)
+    }
+    console.log(userObj)
+    console.log(configObj)
+    fetch(`${url}/users`, configObj)
+    .then(res => res.json())
+    .then(json => {
+        console.log(json)
+        alertUser(`New user ${json.email} created successfully`)
+        signupForm.reset()
+    })
+    .catch(alertUser)
+}
+
+signupForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+    createUser()
+})
