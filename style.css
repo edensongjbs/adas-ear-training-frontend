@@ -1,4 +1,6 @@
-
+* {
+    font-family: 'Press Start 2P', cursive;
+}
 
 .wrapper {
     display: grid;
@@ -87,12 +89,12 @@
 }
 
 .wrapper > div{
-    background: #eee;
+    /* background: #eee; */
     padding: 1em
 }
 
 .wrapper > div:nth-child(odd){
-    background: #ddd
+    /* background: #ddd */
 }
 
 div#keyboard {
@@ -263,3 +265,8 @@ div.b {
     background-color:purple;
 }
 
+/* #display-field {
+    /* display: absolute; */
+    /* width: 400px; */
+    /* white-space: nowrap;
+} */ 

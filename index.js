@@ -27,6 +27,12 @@ const chordBindings = {
     "iii": ["E3", "G3", "B3"]
 }
 
+const AllNotes = ["C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4", "C#", "D#", "F#", "G#", "A#"]
+
+function releaseAll() {
+    for (const note of AllNotes) {synth.triggerRelease(note)}
+}
+
 const allNotes = document.querySelectorAll('.white-note, .black-note')
 const allChords = document.querySelectorAll('.chords button')
 
@@ -103,9 +109,23 @@ releaseNote = (note) => {
 
 //Display Logic and Responsiveness
 
-const wrapper = document.querySelector('div.wrapper')
 
-document.addEventListener("DOMContentLoaded", resizeKeybed)
+
+function alertUser(msg) {
+    releaseAll()
+    // alertMessage = () => {alert(msg)}
+    alertMessage = () => messageDiv.innerText=msg
+    // setTimeout(alertMessage, 1000)
+    alertMessage()
+}
+
+const wrapper = document.querySelector('div.wrapper')
+let messsageDiv
+
+document.addEventListener("DOMContentLoaded", () => {
+    resizeKeybed()
+    messageDiv = document.querySelector('#msg')
+})
 
 function resizeKeybed() {
     if (window.screen.availHeight > 375) {
@@ -140,7 +160,7 @@ const Correct = ["That's Right!", "Great Work!", "Fantastic!"]
 const Incorrect = ["Keep Trying!", "So close...", "You'll get it next time!"]
 
 class Question {
-    constructor(notes, question, playItFirst = false, ordered = false, chordsAllowed = false) {
+    constructor(notes, question, playItFirst = false, ordered = false, chordsAllowed = false, arpeggiate= true) {
         this.question=question
         this.notes=notes
         this.playItFirst=playItFirst
@@ -148,13 +168,15 @@ class Question {
         this.chordsAllowed=chordsAllowed
         this.guesses=0
         this.completed=false
+        this.arpeggiate=arpeggiate
     }
     ask() {
-        alert(this.question)
+        alertUser(this.question)
         if (this.playItFirst) {
             // alert("woof")
-            playCurrentSequence()
+            setTimeout(playCurrentSequence, 1000)
         }
+        readyToAnswer = true;
     }
     compareReponse(res) {
         if (!this.ordered){
@@ -164,11 +186,11 @@ class Question {
         return !(this.notes.find((e, i) => e!==res[i]))
     }
     badFeedback() {
-        alert(Incorrect[Math.floor((Math.random()*(Incorrect.length)))])
+        alertUser(Incorrect[Math.floor((Math.random()*(Incorrect.length)))])
     }
     goodFeedback() {
         // debugger
-        alert(Correct[Math.floor((Math.random()*(Correct.length)))])
+        alertUser(Correct[Math.floor((Math.random()*(Correct.length)))])
     }
 }
 
@@ -187,11 +209,11 @@ function dealRound(q) {
     if (round[q].playItFirst){loadNewSequence(round[q].notes)}
     else {loadNewSequence([])}
     round[q].ask()
-    readyToAnswer = true
+    // readyToAnswer = true
 }
 
 function gameOver() {
-    alert('Good Game!')
+    alertUser('Good Game!')
 }
 
 function answerRound() {
@@ -199,8 +221,8 @@ function answerRound() {
     if (currentQuestion.compareReponse(currentAnswer)){currentQuestion.goodFeedback()}
     else {currentQuestion.badFeedback()}
     let q = round.indexOf(currentQuestion)
-    if (q+1 === round.length) {gameOver()}
-    dealRound(q+1)
+    if (q+1 === round.length) {setTimeout(gameOver, 2000)}
+    else {setTimeout(() => dealRound(q+1), 2000)}
 }
 
 function playGame() {
