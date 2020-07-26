@@ -179,11 +179,13 @@ class Question {
         readyToAnswer = true;
     }
     compareReponse(res) {
+        const flatRes = Object.assign([], res)
+        const flatNotes = this.notes.map(e => e.note_value)
         if (!this.ordered){
-            res.sort()
-            this.notes.sort()
+            flatRes.sort()
+            flatNotes.sort()
         }
-        return !(this.notes.find((e, i) => e!==res[i]))
+        return !(flatNotes.find((e, i) => e!==flatRes[i]))
     }
     badFeedback() {
         alertUser(Incorrect[Math.floor((Math.random()*(Incorrect.length)))])
@@ -199,6 +201,7 @@ const q2 = new Question (["C3", "D3", "F3"], "Listen to the following notes and 
 const q3 = new Question (["F3", "A3", "C4"], "Play back the following chord", true, false, true)
 
 let round = [q1, q2, q3]
+let game_info
 
 let currentQuestion //current question index
 
@@ -206,10 +209,18 @@ function dealRound(q) {
     readyToAnswer = false
     currentAnswer = []
     currentQuestion = round[q]
-    if (round[q].playItFirst){loadNewSequence(round[q].notes)}
+    if (round[q].playItFirst){loadNewSequence(round[q].notes).map(e => e.note_value)}
     else {loadNewSequence([])}
     round[q].ask()
     // readyToAnswer = true
+}
+
+function makeQuestionObjects() {
+    round = []
+    for (const eachQuestion of game_info.questions) {
+        const newQObject = new Question(eachQuestion.notes, eachQuestion.text, eachQuestion.play_first, eachQuestion.orderMatters, eachQuestion.chordsAllowed, eachQuestion.arpeggiated)
+        round.push(newQObject)
+    } 
 }
 
 function gameOver() {
@@ -225,8 +236,25 @@ function answerRound() {
     else {setTimeout(() => dealRound(q+1), 2000)}
 }
 
+let url = 'http://localhost:3000'
+
 function playGame() {
-    dealRound(0)
+    randLevel = Math.floor((Math.random()*11))+1
+    fetch(`${url}/games/1/?level=${randLevel}`)
+    .then(res => res.json())
+    .then(json => {
+        game_info = json
+        // round = game_info.questions
+    })
+    .then(() => {
+        alertUser(game_info.game_message)
+        makeQuestionObjects()
+        setTimeout(() =>{
+            alertUser(game_info.level_message)
+            setTimeout(() => dealRound(0), 2000)
+        }, 3000)
+    }).catch(alertUser)
+    // .then( () => dealRound(0))
     // Takes a Game object? array of questions
     // We'll need Question class and possibly Round/Game class(es)
     // theGameArray.forEach(playRound)
