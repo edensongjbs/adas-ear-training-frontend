@@ -27,6 +27,8 @@ const chordBindings = {
     "iii": ["E3", "G3", "B3"]
 }
 
+let charArea = document.querySelector(".character-area img")
+
 let globalShowNotes = false //if user wants to always display notes being played
 
 const allPitches = ["C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4", "C#", "D#", "F#", "G#", "A#"]
@@ -135,11 +137,13 @@ releaseNote = (note) => {
 
 
 function alertUser(msg) {
+    speakAndy()
     releaseAll()
     alertMessage = () => messageDiv.innerText=msg
     // speechText()
     alertMessage()
     messageDiv.click()
+
     // $messageDiv.trigger('click')
 }
 
@@ -212,8 +216,12 @@ class Question {
         if (this.playItFirst) {
             // alert("woof")
             // setTimeout(playCurrentSequence, 1000)
-            setTimeout(() => playComp(this.arpeggiate), voiceDelay)
+            setTimeout(() => {
+                stillAndy()
+                playComp(this.arpeggiate)
+            }, voiceDelay)
         }
+        else {setTimeout(stillAndy, voiceDelay)}
         readyToAnswer = true;
     }
     compareReponse(res) {
@@ -232,7 +240,10 @@ class Question {
         const voiceDelay = tryAgainMessage.split(" ").length*wordDelay*1.5
         console.log(this)
         const boundAsk = this.ask.bind(this)
-        setTimeout(boundAsk, voiceDelay)
+        setTimeout(() => {
+            stillAndy()
+            boundAsk()
+        }, voiceDelay)
     }
     questionOver() {
         let q = round.indexOf(currentQuestion)
@@ -246,15 +257,21 @@ class Question {
         const voiceDelay = incorrectMessage.split(" ").length*wordDelay*2
         const boundTryAgain = this.tryAgain.bind(this)
         const boundQuestionOver = this.questionOver.bind(this)
-        if (this.guesses < 3) { setTimeout(boundTryAgain, voiceDelay) }
+        if (this.guesses < 3) { setTimeout(() => {
+            stillAndy()
+            boundTryAgain()
+        }, voiceDelay) }
         else {
             this.completed = true
-            this.correct = false 
+            this.correct = false
+            loadNewSequence(this.notes.map(e => e.note_value))
             setTimeout (() => {
                 const moveOnMessage = "Let's Move On.  This was the answer:"
+                
                 const voiceDelay2 = moveOnMessage.split(" ").length*wordDelay
                 alertUser(moveOnMessage)
                 setTimeout(() => {
+                    stillAndy()
                     playComp(true, true)
                     setTimeout(boundQuestionOver, (round.length*noteDuration*1000)+500)
                 }, voiceDelay2+500)
@@ -269,7 +286,11 @@ class Question {
         const correctMessage = Correct[Math.floor((Math.random()*(Correct.length)))]
         alertUser(correctMessage)
         const voiceDelay = correctMessage.split(" ").length*wordDelay
-        setTimeout(this.questionOver, voiceDelay)
+        const boundQuestionOver = this.questionOver.bind(this)
+        setTimeout(() => {
+            stillAndy()
+            boundQuestionOver()
+        }, voiceDelay)
     }
 }
 
@@ -304,6 +325,9 @@ function makeQuestionObjects() {
 
 function gameOver() {
     alertUser('Good Game!')
+    setTimeout(stillAndy, 500)
+    // We'll want to fetch here as well!
+
 }
 
 function answerRound() {
@@ -333,7 +357,10 @@ function playGame() {
     //vmsg.voice = voices[49]
     // debugger
     randLevel = Math.floor((Math.random()*11))+1
-    fetch(`${url}/games/${gameNumber}/?level=${levelNumber}`)
+    fetch(`${url}/games/${gameNumber}/?level=${levelNumber}`, {
+        method: "GET",
+        headers: {Authorization: `Bearer ${localStorage.token}`} 
+    })
     .then(res => res.json())
     .then(json => {
         game_info = json
@@ -346,7 +373,10 @@ function playGame() {
         setTimeout(() =>{
             alertUser(game_info.level_message)
             const voiceDelay = game_info.level_message.split(" ").length*wordDelay
-            setTimeout(() => dealRound(0), voiceDelay)
+            setTimeout(() => {
+                stillAndy()
+                dealRound(0)
+            }, voiceDelay)
         }, voiceDelay)
     }).catch(alertUser)
     // .then( () => dealRound(0))
@@ -482,7 +512,10 @@ function createUser() {
     .then(res => res.json())
     .then(json => {
         console.log(json)
-        alertUser(`New user ${json.email} created successfully`)
+        if (json.token) {
+            localStorage.token = json.token
+            alertUser(`New user ${json.email} created successfully`)
+        }
         signupForm.reset()
     })
     .catch(alertUser)
@@ -520,3 +553,89 @@ s.then((voices) => {
     r = voices.find(e => e.name==="Tessa") || voices[0]
     // alertUser(r)
 })
+
+
+// Andy Animations
+
+andyIntervals = []
+let andyStatus = "still"
+const talkingAndy = ["AndyOpenEyesTalk.gif", "AndySlowTalkClosed.gif", "AndySlowTalkOpen.gif", "BlinkingTalking.gif", "ClosedEyeTalking.gif"]
+const stillAndyAr = ["AndyBlinking.gif", "MediumWag_EyesOpen.gif", "MediumWag_Closed.gif"]
+const happyAndy = []
+
+// talkingAndy.map( e =>{
+//     const newAndyImg = new Image()
+//     newAndyImg.src = `./assets/${e}`
+//     newAndyImg
+// })
+
+// talkingAndy.map( e =>{
+//     const newAndyImg = new Image()
+//     newAndyImg.src = `./assets/${e}`
+//     newAndyImg
+// }
+
+function andyTalk() {
+    const frame = Math.floor(Math.random()*talkingAndy.length)
+    // console.log(frame)
+    charArea.src = "./assets/"+talkingAndy[frame]     ///Uncomment this line
+    // charArea = talkingAndy[frame]
+    // console.log(charArea.src)
+}
+
+function andyBeStill() {
+    if (charArea.src!=="./assets/andystillframe.gif") {charArea.src = "./assets/andystillframe.gif"}
+    const frame = Math.floor(Math.random()*15)
+    if (frame===0 || frame===1 || frame===2) {charArea.src = "./assets/"+stillAndyAr[frame]}
+}
+
+function setTalkingInterval() {
+    andyIntervals.push(setInterval(andyTalk, 1000))
+}
+
+function setStillInterval() {
+    andyIntervals.push(setInterval(andyBeStill, 1500))
+}
+
+function updateAndy() {
+    // console.log("updating")
+    if (andyStatus === "talking") {
+        // const frame = Math.floor(Math.random()*talkingAndy.length)
+        // // console.log(frame)
+        // charArea.src = "./assets/"+talkingAndy[frame]
+        // console.log(charArea.src)
+        setTalkingInterval()
+    }
+    else if (andyStatus == "happy") {
+
+    }
+    else {
+        setStillInterval()
+    }
+}
+
+function speakAndy() {
+    clearIntervals()
+    andyStatus = "talking"
+    window.dispatchEvent(andyEvent)
+}
+
+function stillAndy() {
+    console.log("Still!")
+    clearIntervals()
+    andyStatus = "still"
+    window.dispatchEvent(andyEvent)
+}
+
+function clearIntervals() {
+    for (const andyInterval of andyIntervals) {
+        clearInterval(andyInterval)
+    }
+    andyIntervals = []
+}
+
+window.addEventListener('changeAndy', updateAndy)
+
+let andyEvent = new Event('changeAndy')
+// setInterval(checkAndy, 1000)
+stillAndy()
