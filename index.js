@@ -27,16 +27,24 @@ const chordBindings = {
     "iii": ["E3", "G3", "B3"]
 }
 
-const AllNotes = ["C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4", "C#", "D#", "F#", "G#", "A#"]
+let globalShowNotes = false //if user wants to always display notes being played
+
+const allPitches = ["C3", "D3", "E3", "F3", "G3", "A3", "B3", "C4", "C#", "D#", "F#", "G#", "A#"]
 
 function releaseAll() {
-    for (const note of AllNotes) {synth.triggerRelease(note)}
+    for (const note of allPitches) {synth.triggerRelease(note)}
 }
 
 const allNotes = document.querySelectorAll('.white-note, .black-note')
 const allChords = document.querySelectorAll('.chords button')
 
 var synth = new Tone.PolySynth(4, Tone.Synth, {
+    oscillator : {
+          type : "square"
+      }
+  }).toMaster();
+
+var compSynth = new Tone.PolySynth(4, Tone.Synth, {
     oscillator : {
           type : "square"
       }
@@ -89,10 +97,21 @@ playChord = (chord) => {
     }
 }
 
-playNote = (note) => {
-    synth.triggerAttack(note)
+function highlightNote(note) {
     const noteDiv = document.querySelector(`#${note.replace("#", '\\#')}`)
     noteDiv.classList.add('playing')
+}
+
+function unhighlightNote(note) {
+    const noteDiv = document.querySelector(`#${note.replace("#", '\\#')}`)
+    noteDiv.classList.remove('playing')
+}
+
+playNote = (note) => {
+    synth.triggerAttack(note)
+    // const noteDiv = document.querySelector(`#${note.replace("#", '\\#')}`)
+    // noteDiv.classList.add('playing')
+    highlightNote(note)
     if (readyToAnswer) {
         currentAnswer.push(note)
         console.log(currentAnswer)
@@ -101,22 +120,36 @@ playNote = (note) => {
 
 releaseNote = (note) => {
     synth.triggerRelease(note);
-    const noteDiv = document.querySelector(`#${note.replace("#", '\\#')}`)
-    noteDiv.classList.remove('playing')
+    // const noteDiv = document.querySelector(`#${note.replace("#", '\\#')}`)
+    // noteDiv.classList.remove('playing')
+    unhighlightNote(note)
     if (readyToAnswer && (currentAnswer.length >= currentQuestion.notes.length)) {answerRound()}
 }
 
 
 //Display Logic and Responsiveness
 
+//let vmsg = new SpeechSynthesisUtterance();
+//let voices 
+
 
 
 function alertUser(msg) {
     releaseAll()
-    // alertMessage = () => {alert(msg)}
     alertMessage = () => messageDiv.innerText=msg
-    // setTimeout(alertMessage, 1000)
+    // speechText()
     alertMessage()
+    messageDiv.click()
+    // $messageDiv.trigger('click')
+}
+
+function speechText(e) {
+    console.log(e)
+    vmsg = new SpeechSynthesisUtterance();
+    vmsg.voice = r
+    vmsg.pitch = 2
+    vmsg.text = messageDiv.innerText;
+    window.speechSynthesis.speak(vmsg)
 }
 
 const wrapper = document.querySelector('div.wrapper')
@@ -125,6 +158,8 @@ let messsageDiv
 document.addEventListener("DOMContentLoaded", () => {
     resizeKeybed()
     messageDiv = document.querySelector('#msg')
+    // alertUser(r)
+     //7 17 37 49
 })
 
 function resizeKeybed() {
@@ -171,14 +206,18 @@ class Question {
         this.arpeggiate=arpeggiate
     }
     ask() {
+        console.log("asking")
         alertUser(this.question)
+        const voiceDelay = this.question.split(" ").length*wordDelay
         if (this.playItFirst) {
             // alert("woof")
-            setTimeout(playCurrentSequence, 1000)
+            // setTimeout(playCurrentSequence, 1000)
+            setTimeout(() => playComp(this.arpeggiate), voiceDelay)
         }
         readyToAnswer = true;
     }
     compareReponse(res) {
+        this.guesses++
         const flatRes = Object.assign([], res)
         const flatNotes = this.notes.map(e => e.note_value)
         if (!this.ordered){
@@ -187,21 +226,61 @@ class Question {
         }
         return !(flatNotes.find((e, i) => e!==flatRes[i]))
     }
+    tryAgain() {
+        const tryAgainMessage = "Let's Try Again..."
+        alertUser(tryAgainMessage)
+        const voiceDelay = tryAgainMessage.split(" ").length*wordDelay*1.5
+        console.log(this)
+        const boundAsk = this.ask.bind(this)
+        setTimeout(boundAsk, voiceDelay)
+    }
+    questionOver() {
+        let q = round.indexOf(currentQuestion)
+        if (q+1 === round.length) {setTimeout(gameOver, 2000)}
+        else {setTimeout(() => dealRound(q+1), 2000)}
+    }
     badFeedback() {
-        alertUser(Incorrect[Math.floor((Math.random()*(Incorrect.length)))])
+        const incorrectMessage = Incorrect[Math.floor((Math.random()*(Incorrect.length)))]
+        alertUser(incorrectMessage)
+        console.log(this)
+        const voiceDelay = incorrectMessage.split(" ").length*wordDelay*2
+        const boundTryAgain = this.tryAgain.bind(this)
+        const boundQuestionOver = this.questionOver.bind(this)
+        if (this.guesses < 3) { setTimeout(boundTryAgain, voiceDelay) }
+        else {
+            this.completed = true
+            this.correct = false 
+            setTimeout (() => {
+                const moveOnMessage = "Let's Move On.  This was the answer:"
+                const voiceDelay2 = moveOnMessage.split(" ").length*wordDelay
+                alertUser(moveOnMessage)
+                setTimeout(() => {
+                    playComp(true, true)
+                    setTimeout(boundQuestionOver, (round.length*noteDuration*1000)+500)
+                }, voiceDelay2+500)
+            }, voiceDelay)
+        }
     }
     goodFeedback() {
         // debugger
-        alertUser(Correct[Math.floor((Math.random()*(Correct.length)))])
+        this.completed = true
+        this.correct = true
+        console.log(this)
+        const correctMessage = Correct[Math.floor((Math.random()*(Correct.length)))]
+        alertUser(correctMessage)
+        const voiceDelay = correctMessage.split(" ").length*wordDelay
+        setTimeout(this.questionOver, voiceDelay)
     }
 }
 
-const q1 = new Question (["D3", "G3", "B3"], "Play a V chord", false, false, true)
-const q2 = new Question (["C3", "D3", "F3"], "Listen to the following notes and play them back in order", true, true)
-const q3 = new Question (["F3", "A3", "C4"], "Play back the following chord", true, false, true)
+//const q1 = new Question (["D3", "G3", "B3"], "Play a V chord", false, false, true)
+//const q2 = new Question (["C3", "D3", "F3"], "Listen to the following notes and play them back in order", true, true)
+//const q3 = new Question (["F3", "A3", "C4"], "Play back the following chord", true, false, true)
 
-let round = [q1, q2, q3]
+let round //= [q1, q2, q3]
 let game_info
+//let numGuesses //haven't used yet!!
+let numCorrect //haven;t used yet
 
 let currentQuestion //current question index
 
@@ -209,7 +288,7 @@ function dealRound(q) {
     readyToAnswer = false
     currentAnswer = []
     currentQuestion = round[q]
-    if (round[q].playItFirst){loadNewSequence(round[q].notes).map(e => e.note_value)}
+    if (round[q].playItFirst){loadNewSequence(round[q].notes.map(e => e.note_value))}
     else {loadNewSequence([])}
     round[q].ask()
     // readyToAnswer = true
@@ -230,17 +309,31 @@ function gameOver() {
 function answerRound() {
     readyToAnswer = false
     if (currentQuestion.compareReponse(currentAnswer)){currentQuestion.goodFeedback()}
-    else {currentQuestion.badFeedback()}
-    let q = round.indexOf(currentQuestion)
-    if (q+1 === round.length) {setTimeout(gameOver, 2000)}
-    else {setTimeout(() => dealRound(q+1), 2000)}
+    else {
+        currentAnswer = []
+        currentQuestion.badFeedback()
+    }
+    
+    //  These three lines are being moved to class def
+
+    // let q = round.indexOf(currentQuestion)
+    // if (q+1 === round.length) {setTimeout(gameOver, 2000)}
+    // else {setTimeout(() => dealRound(q+1), 2000)}
 }
 
 let url = 'http://localhost:3000'
 
+let gameNumber = 1
+let levelNumber = 1
+
+//setTimeout(() => console.log(window.speechSynthesis.getVoices()), 5000)
+
 function playGame() {
+    
+    //vmsg.voice = voices[49]
+    // debugger
     randLevel = Math.floor((Math.random()*11))+1
-    fetch(`${url}/games/1/?level=${randLevel}`)
+    fetch(`${url}/games/${gameNumber}/?level=${levelNumber}`)
     .then(res => res.json())
     .then(json => {
         game_info = json
@@ -248,11 +341,13 @@ function playGame() {
     })
     .then(() => {
         alertUser(game_info.game_message)
+        const voiceDelay = game_info.game_message.split(" ").length*wordDelay
         makeQuestionObjects()
         setTimeout(() =>{
             alertUser(game_info.level_message)
-            setTimeout(() => dealRound(0), 2000)
-        }, 3000)
+            const voiceDelay = game_info.level_message.split(" ").length*wordDelay
+            setTimeout(() => dealRound(0), voiceDelay)
+        }, voiceDelay)
     }).catch(alertUser)
     // .then( () => dealRound(0))
     // Takes a Game object? array of questions
@@ -274,8 +369,9 @@ function playGame() {
 //Playing Questions
 
 let currentCompNotes
-let currentCompTimes = [0, '0:3', '0:6']
+let currentCompTimes = [0, '0:3', '0:6', '0:9', '1:2']
 let currentIndex = 0;
+let noteDuration = 1
 
 function playCurrentSequence() {
     if (Tone.Transport.state==="started") {Tone.Transport.toggle()}
@@ -289,11 +385,42 @@ function clearCurrentSequence() {
     }
 }
 
+function highLightSequence(lastNote, upComingNotes, timeInterval) {
+    // debugger
+    // console.log("highlighting "+upComingNotes)
+    // console.log("unhighlighting "+lastNote)
+    // console.log("length of array"+upComingNotes.length)
+    if (upComingNotes.length > 0) {
+        const noteToPlay=upComingNotes[0]
+        highlightNote(noteToPlay)
+        const newArray = Object.assign([], upComingNotes.slice(1, upComingNotes.length))
+        setTimeout(() => highLightSequence(noteToPlay, newArray, timeInterval), timeInterval)
+    }
+    if (lastNote) {unhighlightNote(lastNote)}
+}
+
+function playComp(arp = false, highlight=false) {
+    let nextTime = 0
+    tempNoteDuration = arp ? noteDuration : (2*noteDuration)
+    //let lastNote
+    // const now = Tone.now()
+
+    if (highlight || globalShowNotes) { highLightSequence(null, Object.assign([], currentCompNotes), noteDuration*1000) }
+    for (const note of currentCompNotes){
+        console.log(note)
+        compSynth.triggerAttack(note, (Tone.now()+nextTime))
+        compSynth.triggerRelease(note, (Tone.now()+nextTime+noteDuration))
+        nextTime = nextTime+(arp ? noteDuration: 0 )
+        // debugger
+    }
+}
+
 function loadNewSequence(ar) {
     clearCurrentSequence()
     currentCompNotes = ar
     currentIndex = 0
-    setup()    
+    // playComp()
+    //setup() 
 }
 
 // loadNewSequence(["C4", "E4", "G4"])
@@ -364,4 +491,32 @@ function createUser() {
 signupForm.addEventListener("submit", (e) => {
     e.preventDefault()
     createUser()
+})
+
+
+
+// text to speech
+
+const wordDelay = 300
+
+function setSpeech() {
+    return new Promise(
+        function (resolve, reject) {
+            let synth = window.speechSynthesis;
+            let id;
+
+            id = setInterval(() => {
+                if (synth.getVoices().length !== 0) {
+                    resolve(synth.getVoices());
+                    clearInterval(id);
+                }
+            }, 10);
+        }
+    )
+}
+let r
+let s = setSpeech();
+s.then((voices) => {
+    r = voices.find(e => e.name==="Tessa") || voices[0]
+    // alertUser(r)
 })
