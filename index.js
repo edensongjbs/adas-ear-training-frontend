@@ -57,10 +57,12 @@ var compSynth = new Tone.PolySynth(4, Tone.Synth, {
 
 document.addEventListener('keydown', (e) => {
     if (e.repeat){ return }
+    if (modalOpen){ return }
     playNote(keyBindings[e.key])
 })
 
 document.addEventListener('keyup', (e) => {
+    if (modalOpen){ return }
     releaseNote(keyBindings[e.key])
 })
 
@@ -149,12 +151,84 @@ function alertUser(msg) {
     // $messageDiv.trigger('click')
 }
 
+function customPronounce(text) {
+    const wordAry = text.split(' ')
+    for (const wordIndex in wordAry) {
+        switch (wordAry[wordIndex]) {
+            case 'do':
+                wordAry[wordIndex] = "doh"
+                break
+            case 'Do':
+                wordAry[wordIndex] = "doh"
+                break
+            case 'Do.':
+                wordAry[wordIndex] = "doh."
+                break
+            case 'Do!':
+                wordAry[wordIndex] = "doh!"
+                break
+            case 'Re':
+                wordAry[wordIndex] = "ray"
+                break
+            case 'Re!':
+                    wordAry[wordIndex] = "ray!"
+                    break
+            case 'Re.':
+                    wordAry[wordIndex] = "ray."
+                    break
+            case 'Re,':
+                    wordAry[wordIndex] = "ray,"
+                    break
+            case 'I':
+                // debugger
+                if (wordAry[(parseInt(wordIndex)+1)]=="chord" || wordAry[(parseInt(wordIndex)+1)]=="chord!" || wordAry[(parseInt(wordIndex)+1)]=="chord." || wordAry[(parseInt(wordIndex)+1)]=="chord,"  ) {wordAry[wordIndex] = "1"}
+                break
+            case 'I,':
+                wordAry[wordIndex] = "1,"
+                break
+            case 'VI':
+                wordAry[wordIndex] = "6"
+                break
+            case 'VI,':
+                wordAry[wordIndex] = "6,"
+                break
+            case 'V':
+                wordAry[wordIndex] = "5"
+                break
+            case 'V,':
+                wordAry[wordIndex] = "5,"
+                break
+            case 'IV':
+                wordAry[wordIndex] = "4"
+                break
+            case 'IV,':
+                wordAry[wordIndex] = "4,"
+                break
+            case 'iii':
+                wordAry[wordIndex] = "3"
+                break
+            case 'iii,':
+                wordAry[wordIndex] = "3,"
+                break
+            case 'ii':
+                wordAry[wordIndex] = "2"
+                break
+            case 'ii,':
+                wordAry[wordIndex] = "2,"
+                break
+        }
+    }
+    // console.log(wordAry)
+    return wordAry.join(' ')
+}
+
 function speechText(e) {
     console.log(e)
     vmsg = new SpeechSynthesisUtterance();
     vmsg.voice = r
     vmsg.pitch = 2
-    vmsg.text = messageDiv.innerText;
+    vmsg.text = customPronounce(messageDiv.innerText) 
+    // vmsg.text = messageDiv.innerText;
     window.speechSynthesis.speak(vmsg)
 }
 
@@ -366,7 +440,7 @@ function tallyUpRound() {
     // debugger
     currentLevel = game_info.level_num
     let userLevelObject = {}
-    if (localUserObject[currentGame].highest_completed_level < currentLevel ) {
+    if (allCorrect && localUserObject[currentGame].highest_completed_level < currentLevel ) {
         // inc level locally
         localUserObject[currentGame].highest_completed_level = currentLevel
         userLevelObject = Object.assign({}, userLevelObject, {completed:true})
@@ -423,7 +497,9 @@ let currentGame, currentLevel
 //setTimeout(() => console.log(window.speechSynthesis.getVoices()), 5000)
 
 function playGame(gameNum, levelNum) {
-    if (modalOpen){loginLink.click()}
+    if (modalOpen){
+        logoutLink.click()
+    }
     // debugger
     //vmsg.voice = voices[49]
     // debugger
@@ -586,11 +662,12 @@ function openGameMenu() {
     modalA.classList.remove("hide")
     modalDiv.classList.remove("hide")
     modalOpen = true
-    loginLink.innerText="Back"
-    loginLink.classList.add('menu-open')
+    logoutLink.innerText="Back"
+    logoutLink.classList.add('menu-open')
+    if (userDeletable) {deleteUserLink.classList.add('hide')}
 }
 
-
+let userDeletable = false
 
 // if (Modernizr.touchevents) {alert("you're on a phone")}
 // else {alert("you're on a computer")}
@@ -635,9 +712,13 @@ function createUser() {
         console.log(json)
         if (json.token) {
             localStorage.token = json.token
+            localUserObject = json.user_object
             loginLink.classList.add('hide')
             logoutLink.classList.remove('hide')
-            alertUser(`Welcome, ${json.first_name}`)
+            deleteUserLink.classList.remove('hide')
+            userDeletable = true
+            debugger
+            alertUser(`Welcome, ${localUserObject.first_name}`)
         }
         signupForm.reset()
         loginLink.click()
@@ -645,9 +726,59 @@ function createUser() {
     .catch(alertUser)
 }
 
+function logoutOrCloseModal(e) {
+    // logoutUser()
+    if (modalOpen) {
+        if (![...modalA.classList].includes("hide")) {
+            modalA.classList.add("hide")
+            modalB.classList.remove("hide")
+        }
+        if (userDeletable) {deleteUserLink.classList.remove('hide')}      
+        modalDiv.classList.add('hide')
+        modalOpen = false
+        logoutLink.innerText="Logout"
+        logoutLink.classList.remove('menu-open')
+    }
+    else {
+        // if (![...modalA.classList].includes("hide")) {
+        //     modalA.classList.add("hide")
+        //     modalB.classList.remove("hide")
+        // }   
+        // modalDiv.classList.remove('hide')
+        // modalOpen = true
+        //e.target.innerText="Back"
+        //e.target.classList.add('menu-open')
+        logoutUser()
+    }
+}
+
+logoutLink.addEventListener("click", logoutOrCloseModal)
+
+const deleteUserLink = document.querySelector('#delete-user-link')
+
+function confirmDelete() {
+    fetch(`${url}/users`, {
+        method: "DELETE",
+        headers: {Authorization: `Bearer ${localStorage.token}`} 
+    }).then(logoutUser)
+}
 
 
-logoutLink.addEventListener("click", logoutUser)
+// function requestDelete() {
+    
+// }
+
+function deleteUser() {
+    if (deleteUserLink.innerText == "Confirm Delete?") {
+        confirmDelete()
+    }
+    else {
+        deleteUserLink.innerText = "Confirm Delete?"
+        setTimeout(()=> deleteUserLink.innerText = "Delete Account", 5000)
+    }
+}
+
+deleteUserLink.addEventListener("click", deleteUser)
 
 function initialAuthorize() {
     const configObj = {
@@ -666,6 +797,8 @@ function initialAuthorize() {
             localUserObject = json
             loginLink.classList.add('hide')
             logoutLink.classList.remove('hide')
+            deleteUserLink.classList.remove('hide')
+            userDeletable = true
             alertUser(`Welcome, ${localUserObject.first_name}!`)
         }
     }).catch(alertUser)
@@ -715,6 +848,8 @@ function loginUser() {
             localUserObject = json.user_object
             loginLink.classList.add('hide')
             logoutLink.classList.remove('hide')
+            deleteUserLink.classList.remove('hide')
+            userDeletable = true
             alertUser(`Welcome back, ${localUserObject.first_name}!`)
         }
         loginForm.reset()
