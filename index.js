@@ -27,6 +27,8 @@ const chordBindings = {
     "iii": ["E3", "G3", "B3"]
 }
 
+let localUserObject = {}
+
 let charArea = document.querySelector(".character-area img")
 
 let globalShowNotes = false //if user wants to always display notes being played
@@ -162,6 +164,7 @@ let messsageDiv
 document.addEventListener("DOMContentLoaded", () => {
     resizeKeybed()
     messageDiv = document.querySelector('#msg')
+    initialAuthorize()
     // alertUser(r)
      //7 17 37 49
 })
@@ -178,15 +181,33 @@ window.addEventListener("resize", resizeKeybed)
 let modalOpen = false
 const menuButton = document.querySelector('#menu')
 const modalDiv = document.querySelector('.window-cover')
+const modalA = document.querySelector('.modal-a')
+const modalB = document.querySelector('.modal-b')
 
-menuButton.addEventListener("click", e => {
+
+const loginLink = document.querySelector('#login-link')
+const logoutLink = document.querySelector('#logout-link')
+
+loginLink.addEventListener("click", e => {
     if (modalOpen) {
+        if (![...modalA.classList].includes("hide")) {
+            modalA.classList.add("hide")
+            modalB.classList.remove("hide")
+        }      
         modalDiv.classList.add('hide')
         modalOpen = false
+        e.target.innerText="Login/Signup"
+        e.target.classList.remove('menu-open')
     }
     else {
+        if (![...modalA.classList].includes("hide")) {
+            modalA.classList.add("hide")
+            modalB.classList.remove("hide")
+        }   
         modalDiv.classList.remove('hide')
         modalOpen = true
+        e.target.innerText="Back"
+        e.target.classList.add('menu-open')
     }
 })
 
@@ -323,8 +344,57 @@ function makeQuestionObjects() {
     } 
 }
 
+function patchUserLevel(userLevelObject) {
+    const uselev = game_info.user_level_id
+    configObj = {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.token}`
+        },
+        body: JSON.stringify(userLevelObject)
+    }
+    fetch (`${url}/user_levels/${uselev}`, configObj).then(res => res.json()).then(json => console.log(json))
+}
+
+function tallyUpRound() {
+    const totalGuesses = round.reduce((m,q) => {
+        return m + q.guesses
+    }, 0)
+    const allCorrect = round.every(q => q.correct)
+    const score = Math.round(((round.filter(q => q.correct).length)/totalGuesses)*100)
+    // debugger
+    currentLevel = game_info.level_num
+    let userLevelObject = {}
+    if (localUserObject[currentGame].highest_completed_level < currentLevel ) {
+        // inc level locally
+        localUserObject[currentGame].highest_completed_level = currentLevel
+        userLevelObject = Object.assign({}, userLevelObject, {completed:true})
+        // check to see if score > high score
+        if (localUserObject[currentGame].high_scores[currentLevel-1] < score) {
+            localUserObject[currentGame].high_scores[currentLevel-1] = score
+            userLevelObject = Object.assign({}, userLevelObject, {best_score: score})
+        }
+        patchUserLevel(userLevelObject)
+        // if so, update locally
+        // send fetch to update one or both of those values
+    }
+    else {
+        if (localUserObject[currentGame].high_scores[currentLevel-1] < score) {
+            localUserObject[currentGame].high_scores[currentLevel-1] = score
+            userLevelObject = Object.assign({}, userLevelObject, {best_score: score})
+            patchUserLevel(userLevelObject)
+        }
+        // is score for this level > high score
+        // if so, update locally and send fetch
+        // else, just end round
+    }
+
+}
+
 function gameOver() {
     alertUser('Good Game!')
+    tallyUpRound()
     setTimeout(stillAndy, 500)
     // We'll want to fetch here as well!
 
@@ -346,18 +416,21 @@ function answerRound() {
 }
 
 let url = 'http://localhost:3000'
-
-let gameNumber = 1
-let levelNumber = 1
+let currentGame, currentLevel
+// let gameNumber = 1
+// let levelNumber = 1
 
 //setTimeout(() => console.log(window.speechSynthesis.getVoices()), 5000)
 
-function playGame() {
-    
+function playGame(gameNum, levelNum) {
+    if (modalOpen){loginLink.click()}
+    // debugger
     //vmsg.voice = voices[49]
     // debugger
-    randLevel = Math.floor((Math.random()*11))+1
-    fetch(`${url}/games/${gameNumber}/?level=${levelNumber}`, {
+    // randLevel = Math.floor((Math.random()*11))+1
+    currentGame = `game_${gameNum}`
+    currentLevel = levelNum
+    fetch(`${url}/games/${gameNum}/?level=${levelNum}`, {
         method: "GET",
         headers: {Authorization: `Bearer ${localStorage.token}`} 
     })
@@ -369,6 +442,7 @@ function playGame() {
     .then(() => {
         alertUser(game_info.game_message)
         const voiceDelay = game_info.game_message.split(" ").length*wordDelay
+        // userLevelId = game_info
         makeQuestionObjects()
         setTimeout(() =>{
             alertUser(game_info.level_message)
@@ -483,8 +557,40 @@ function triggerSynth(time){
     inc()
 }
 
-playButton = document.querySelector('.play')
-playButton.addEventListener("click", playGame)
+const playButton = document.querySelector('.play')
+const gameButtonArea = document.querySelector('.game-buttons')
+
+gameButtonArea.addEventListener('click', e => {
+    if (e.target.value) {playGame(parseInt(e.target.value), parseInt(e.target.querySelector('span').innerText))}
+})
+
+
+
+// playButton.addEventListener("click", playGame)
+playButton.addEventListener("click", () => {
+    if (localUserObject.email) {openGameMenu()}
+    else loginLink.click()
+})
+
+function updateLevelButtons() {
+    const gameButtons = [...gameButtonArea.querySelectorAll('button')].sort((a, b) => parseInt(a.value) - parseInt(b.value))
+    gameButtons[0].querySelector('span').innerText = localUserObject.game_1.highest_completed_level+1
+    gameButtons[1].querySelector('span').innerText = localUserObject.game_2.highest_completed_level+1
+    gameButtons[2].querySelector('span').innerText = localUserObject.game_3.highest_completed_level+1
+    gameButtons[3].querySelector('span').innerText = localUserObject.game_4.highest_completed_level+1
+}
+
+function openGameMenu() {
+    updateLevelButtons()
+    modalB.classList.add("hide")
+    modalA.classList.remove("hide")
+    modalDiv.classList.remove("hide")
+    modalOpen = true
+    loginLink.innerText="Back"
+    loginLink.classList.add('menu-open')
+}
+
+
 
 // if (Modernizr.touchevents) {alert("you're on a phone")}
 // else {alert("you're on a computer")}
@@ -492,12 +598,27 @@ playButton.addEventListener("click", playGame)
 // User signup
 
 const signupForm = document.querySelector('.signup-form')
+const loginForm = document.querySelector('.login-form')
+
+signupForm.querySelector('a').addEventListener("click", () => {
+    // preventDefault()
+    signupForm.classList.add('hide')
+    loginForm.classList.remove('hide')
+})
+
+loginForm.querySelector('a').addEventListener("click", () => {
+    // preventDefault()
+    loginForm.classList.add('hide')
+    signupForm.classList.remove('hide')
+})
+
 
 function createUser() {
     const userObj = {
         email: signupForm[0].value,
-        password: signupForm[1].value,
-        password_confirmation: signupForm[2].value
+        password: signupForm[2].value,
+        password_confirmation: signupForm[3].value,
+        first_name: signupForm[1].value
     }
     const configObj = {
         headers: {
@@ -514,11 +635,98 @@ function createUser() {
         console.log(json)
         if (json.token) {
             localStorage.token = json.token
-            alertUser(`New user ${json.email} created successfully`)
+            loginLink.classList.add('hide')
+            logoutLink.classList.remove('hide')
+            alertUser(`Welcome, ${json.first_name}`)
         }
         signupForm.reset()
+        loginLink.click()
     })
     .catch(alertUser)
+}
+
+
+
+logoutLink.addEventListener("click", logoutUser)
+
+function initialAuthorize() {
+    const configObj = {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${localStorage.token}`
+        }
+    }
+    fetch(`${url}/users`, configObj)
+    .then (res => res.json()).then(json => {
+        // debugger
+        
+        // debugger
+        if (json.email){
+            // debugger
+            localUserObject = json
+            loginLink.classList.add('hide')
+            logoutLink.classList.remove('hide')
+            alertUser(`Welcome, ${localUserObject.first_name}!`)
+        }
+    }).catch(alertUser)
+}
+
+// userObj = {
+//     email: email,
+//     first_name: first_name,
+//     game_1: {
+//         highest_completed_level: num,
+//         high_scores: []
+//     },
+//     game_2: {
+//         highest_completed_level: num,
+//         high_scores: []
+//     },
+//     game_3: {
+//         highest_completed_level: num,
+//         high_scores: []
+//     },
+//     game_4: {
+//         highest_completed_level: num,
+//         high_scores: []
+//     }   
+// }
+
+function loginUser() {
+    const userObj = {
+        email: loginForm[0].value,
+        password: loginForm[1].value,
+    }
+    const configObj = {
+        headers: {
+            "Content-Type": "application/json"
+        },
+        method: "POST",
+        body: JSON.stringify(userObj)
+    }
+    console.log(userObj)
+    console.log(configObj)
+    fetch(`${url}/auth`, configObj)
+    .then(res => res.json())
+    .then(json => {
+        console.log(json)
+        if (json.token) {
+            localStorage.token = json.token
+            localUserObject = json.user_object
+            loginLink.classList.add('hide')
+            logoutLink.classList.remove('hide')
+            alertUser(`Welcome back, ${localUserObject.first_name}!`)
+        }
+        loginForm.reset()
+        loginLink.click()
+    })
+    .catch(alertUser)
+}
+
+function logoutUser() {
+    alertUser("Goodbye")
+    localStorage.clear()
+    setTimeout(() => location.reload(), 1000)
 }
 
 signupForm.addEventListener("submit", (e) => {
@@ -526,6 +734,10 @@ signupForm.addEventListener("submit", (e) => {
     createUser()
 })
 
+loginForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+    loginUser()
+})
 
 
 // text to speech
@@ -604,6 +816,7 @@ function updateAndy() {
         // // console.log(frame)
         // charArea.src = "./assets/"+talkingAndy[frame]
         // console.log(charArea.src)
+        charArea.src = "./assets/"+talkingAndy[0]
         setTalkingInterval()
     }
     else if (andyStatus == "happy") {
@@ -639,3 +852,6 @@ window.addEventListener('changeAndy', updateAndy)
 let andyEvent = new Event('changeAndy')
 // setInterval(checkAndy, 1000)
 stillAndy()
+
+
+// Menu Shifting

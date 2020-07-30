@@ -4,40 +4,44 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="https://kit.fontawesome.com/0da1b41e13.js" crossorigin="anonymous"></script>
+    <!-- <script src="https://kit.fontawesome.com/0da1b41e13.js" crossorigin="anonymous"></script> -->
     <title>Playing with Sound in JS</title>
   </head>
   <body>
     <div class="window-cover hide">
-      <!-- <div class="modal-a">
-        <div class="game-buttons">
-          <button>Game 1<br>Chords</button>
-          <button>Game 2<br>Chords</button>
-          <button>Game 3<br>Chords</button>
-          <button>Game 4<br>Chords</button>
-          <button>Game 5<br>Chords</button>
+      <div class="modal-a hide">
+        <div class="game-buttons small-text">
+          <button value="1">Game 1<br>Note Names<br>Level:&nbsp;<span>1</span></button>
+          <button value="2">Game 2<br>Chord Names<br>Level:&nbsp;<span>1</span></button>
+          <button value="3">Game 3<br>Chords By Ear<br>Level:&nbsp;<span>1</span></button>
+          <button value="3">Game 4<br>Pitches By Ear<br>Level:&nbsp;<span>1</span></button>
+          <!-- <button>Game 5<br>Mashup!</button> -->
         </div>
         <div class="login"></div>
         <div class="options"></div>
-      </div> -->
+      </div>
       <div class="modal-b">
         <div class="form-div">
-          <!-- <form class="login-form">
-            <label for="email">E-Mail Address</label>
+          <form class="login-form">
+            <label for="email">E-Mail Address:</label>
             <input id ="email" name="email" type="text" placeholder="example@example.com">
-            <label for="password">Password</label>
+            <br><br>
+            <label for="password">Password:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   </label>
             <input id="password" name="password" type="password" placeholder="password">
-            <a href="#">New Users, Click here to sign up!</a>
+            <br><br>
+            <a id="switch-to-sign-up" class="small-text" href="#">New Users, Click here to sign up!</a>
             <input type="submit">
-          </form> -->
-          <form class="signup-form">
-            <label for="email">E-Mail Address</label>
-            <input id ="email" name="email" type="text" placeholder="example@example.com">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" placeholder="password">
-            <label for="password-confirmation">Confirm Password</label>
-            <input id="password-confirmation" name="password-confirmation" type="password" placeholder="password">
-            <a href="#">Current Users, Click here to log in!</a>
+          </form>
+          <form class="signup-form hide">
+            <label for="email">E-Mail Address:&nbsp;</label>
+            <input id ="email" name="email" type="text" placeholder="example@example.com"><br><br>
+            <label for="first_name">First Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <input id="first_name" name="first_name" type="text" placeholder="First Name"><br><br>
+            <label for="password">Password:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <input id="password" name="password" type="password" placeholder="password"><br><br>
+            <label for="password-confirmation">Confirm Password:</label>
+            <input id="password-confirmation" name="password-confirmation" type="password" placeholder="password"><br><br>
+            <a class = "small-text" id="switch-to-log-in" href="#">Current Users, Click here to log in!</a>
             <input type="submit">
           </form>
           
@@ -62,7 +66,15 @@
         <div class="black-note" id="G#3"></div>
         <div class="black-note" id="A#3"></div>
       </div>
-      <div class="character-area"><img src="./assets/andystillframe.gif"></div>
+      <div class="character-area">
+        <div id=menu>
+          <!-- <i class="fas fa-chevron-circle-down"></i> -->
+          <a id="login-link" class="small-text" href="#">Login/Signup</a>
+          <a id="logout-link" class="small-text hide" href="#">Logout</a>
+          <br>
+        </div>
+        <img src="./assets/andystillframe.gif">
+      </div>
       <div class="chords">
         <div></div>
         <div></div>
@@ -79,9 +91,7 @@
       </div>
       <div class="controls"><button class="play">Play Game</button></div>
     </div>
-    <div id=menu>
-      <i class="fas fa-chevron-circle-down"></i> 
-    </div>
+
     <script src="Tone.js" charset="utf-8"></script>
     <script src="./modernizr/modernizr-custom.js" charset="utf-8"></script>
     <script src="index.js" charset="utf-8"></script>
