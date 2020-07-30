@@ -151,8 +151,8 @@ function alertUser(msg) {
     // $messageDiv.trigger('click')
 }
 
-function customPronounce(text) {
-    const wordAry = text.split(' ')
+function customPronounce(wordAry) {
+    // const wordAry = text.split(' ')
     for (const wordIndex in wordAry) {
         switch (wordAry[wordIndex]) {
             case 'do':
@@ -227,9 +227,12 @@ function speechText(e) {
     vmsg = new SpeechSynthesisUtterance();
     vmsg.voice = r
     vmsg.pitch = 2
-    vmsg.text = customPronounce(messageDiv.innerText) 
+    const messageAry = messageDiv.innerText.split(" ")
+    vmsg.text = customPronounce(messageAry) 
     // vmsg.text = messageDiv.innerText;
     window.speechSynthesis.speak(vmsg)
+    silentDelay = Math.round(messageAry.length*wordDelay*0.60)
+    setTimeout(stillAndy, silentDelay)
 }
 
 const wrapper = document.querySelector('div.wrapper')
