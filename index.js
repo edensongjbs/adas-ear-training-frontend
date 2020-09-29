@@ -42,17 +42,19 @@ function releaseAll() {
 const allNotes = document.querySelectorAll('.white-note, .black-note')
 const allChords = document.querySelectorAll('.chords button')
 
+var vol = new Tone.Volume(-12).toMaster()
+
 var synth = new Tone.PolySynth(4, Tone.Synth, {
     oscillator : {
           type : "square"
       }
-  }).toMaster();
+  }).connect(vol);
 
 var compSynth = new Tone.PolySynth(4, Tone.Synth, {
     oscillator : {
           type : "square"
       }
-  }).toMaster();
+  }).connect(vol);
 
 
 document.addEventListener('keydown', (e) => {
@@ -493,6 +495,7 @@ function answerRound() {
 }
 
 let url = 'http://localhost:3000'
+// let url = "http://192.168.0.12:3000/"
 let currentGame, currentLevel
 // let gameNumber = 1
 // let levelNumber = 1
