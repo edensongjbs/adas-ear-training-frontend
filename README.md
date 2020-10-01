@@ -1,5 +1,9 @@
 # Ada's Ear Training
 
+### An Ear-Training and Basic Music Theory App for Young Kids
+
+
+
 ## Introduction
 
 *Ada's Ear Training* is a browser based application intended to help young children learn the basics of music theory (note naming, chord forming) and practice ear training (chord recognition, and note/melodic echoing).  It was inspired by my 3yo daughter's own early adventures in music and I figured this would be a fun and interactive way for her to practice her skills and share these concepts with other children (and adults) as well.  I went for a retro-style that evoked a lot of the educational games of my childhood.
@@ -19,7 +23,7 @@ Future versions will include support for level navigation, "Learning Mode", and 
 
 ## Links
 
-[Basic Video Demo (unedited)](https://www.youtube.com/watch?v=mFPc6h8DE2k&feature=youtu.be)
-[Github Front-end](https://github.com/edensongjbs/rainbow-piano-ear-training-frontend)
-[Github Back-end](https://github.com/edensongjbs/rainbow-piano-ear-training-api)
-[Tone.js](https://tonejs.github.io/)
+- [Basic Video Demo](https://www.youtube.com/watch?v=EAFggwkXN5w)
+- [Github Front-end](https://github.com/edensongjbs/adas-ear-training-frontend)
+- [Github Back-end](https://github.com/edensongjbs/adas-ear-training-api)
+- [Tone.js](https://tonejs.github.io/)
