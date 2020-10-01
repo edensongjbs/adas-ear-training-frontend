@@ -26,4 +26,5 @@ Future versions will include support for level navigation, "Learning Mode", and 
 - [Basic Video Demo](https://www.youtube.com/watch?v=EAFggwkXN5w)
 - [Github Front-end](https://github.com/edensongjbs/adas-ear-training-frontend)
 - [Github Back-end](https://github.com/edensongjbs/adas-ear-training-api)
+- [Blog Entry About Building The Raibow Piano Interface](https://dev.to/edensongjbs/building-ada-s-rainbow-piano-11bd)
 - [Tone.js](https://tonejs.github.io/)
